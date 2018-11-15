@@ -3,6 +3,25 @@ flatlog
 
 A custom formatter for the logger application that turns maps into single line text logs
 
+Why?
+----
+
+Structured logging is a better approach to logging in general. Fields are more clearly defined, tool-assisted parsing and consuming of logs is simpler, and the structure is amenable to good filtering in global or handler filters for the Erlang `logger` library.
+
+You could, for example, emit all your logs as structured logs (just maps), and set up multiple handlers for them:
+
+- an audit handler, for all critical issues and configuration changes, which get stored on disk and remotely for long periods of time
+- an info log for users, which gets a shorter term durability
+- an error log for support tickets, which may instead have a targeted retention for a few weeks
+- a special handler that parses the structured logs and forwards them to a distributed tracing
+  framework such as opencensus
+- extract or hide metrics from logs if you integrate with such a system, and do it cheaply by
+  just nesting (or removing) a metrics map to the overall report.
+
+This can be done transparently and after the fact, without major structural impact to the call site. It lets you far more easily decouple log generation from its consumption at no heavy cost.
+
+This formatter focuses on providing a text-based single-line format for structured logs, which can be amenable human consumers, along with people who use grep or awk to process log, or want to forward them to syslog.
+
 Usage
 -----
 
