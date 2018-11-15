@@ -46,7 +46,7 @@ txt="user password not strong enough" result=error in=config
 details={entropy,too_low} action=change_password
 ```
 
-Do note that the `user` map gets flattened such that ``#{user => #{name => bobby}}` gets
+Do note that the `user` map gets flattened such that `#{user => #{name => bobby}}` gets
 turned into `user_name=bobby`, ensuring that various subfields in distinct maps
 will not clash.
 
@@ -58,6 +58,20 @@ for the logger framework, either explicitly or as a process state. The fields ar
 - `parent_id` for the event or command that initially caused the current logging event to happen
 - `correlation_id` for groupings of related events
 
+
+Logs that are not reports (maps) are going to be formatted and handled such that they can be
+put inside a structured log. For example:
+
+```erlang
+?LOG_INFO("hello ~s", ["world"])
+```
+
+Will result in:
+
+```
+when=2018-11-15T18:16:03.411822+00:00 level=info pid=<0.134.0>
+at=some:code/0:15 unstructured_log="hello world"
+```
 
 Test
 ----
@@ -98,5 +112,4 @@ Roadmap
 - integration tests
 - add example basic usage
 - add example usage with optional tracing for IDs
-- decide what to do with non-report logs
 - clean up test suites

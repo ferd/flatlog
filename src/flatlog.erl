@@ -6,7 +6,6 @@
 %%% logger formatter regarding: max depth, templates.
 %%% @end
 -module(flatlog).
--compile(export_all).
 
 %% API exports
 -export([format/2]).
@@ -29,7 +28,16 @@ format(#{level:=Level, msg:={report, Msg}, meta:=Meta}, UsrConfig) when is_map(M
     NewMeta = maps:put(level, Level, Meta),
     format_log(maps:get(template, Config), Config, Msg, NewMeta);
 format(Map = #{msg := {report, KeyVal}}, UsrConfig) when is_list(KeyVal) ->
-    format(Map#{msg := {report, maps:from_list(KeyVal)}}, UsrConfig).
+    format(Map#{msg := {report, maps:from_list(KeyVal)}}, UsrConfig);
+format(Map = #{msg := {string, String}}, UsrConfig) ->
+    format(Map#{msg := {report,
+                        #{unstructured_log =>
+                          unicode:characters_to_binary(String)}}}, UsrConfig);
+format(Map = #{msg := {Format, Terms}}, UsrConfig) ->
+    format(Map#{msg := {report,
+                        #{unstructured_log =>
+                          unicode:characters_to_binary(io_lib:format(Format, Terms))}}},
+           UsrConfig).
 
 %%====================================================================
 %% Internal functions

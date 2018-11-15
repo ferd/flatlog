@@ -4,7 +4,7 @@
 -include_lib("stdlib/include/assert.hrl").
 
 all() ->
-    [term_depth, map_depth].
+    [term_depth, map_depth, unstructured].
 
 term_depth() ->
     [{docs, "Once a term is too deep, it gets continued with `...'"}].
@@ -45,4 +45,28 @@ map_depth(_) ->
 
     ok.
 
-
+unstructured() ->
+    [{docs, "logs that aren't structured get passed through with a re-frame"}].
+unstructured(_) ->
+    ?assertEqual(
+       "unstructured_log=abc ",
+       lists:flatten(
+         flatlog:format(#{level => info, msg => {string, "abc"}, meta => #{}},
+                        #{template => [msg]})
+       )
+    ),
+    ?assertEqual(
+       "unstructured_log=abc ",
+       lists:flatten(
+         flatlog:format(#{level => info, msg => {string, [<<"abc">>]}, meta => #{}},
+                        #{template => [msg]})
+       )
+    ),
+    ?assertEqual(
+       "unstructured_log=\"hello world\" ",
+       lists:flatten(
+         flatlog:format(#{level => info, msg => {"hello ~s", ["world"]}, meta => #{}},
+                        #{template => [msg]})
+       )
+    ),
+    ok.
