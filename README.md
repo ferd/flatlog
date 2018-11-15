@@ -16,11 +16,11 @@ You could, for example, emit all your logs as structured logs (just maps), and s
 - a special handler that parses the structured logs and forwards them to a distributed tracing
   framework such as opencensus
 - extract or hide metrics from logs if you integrate with such a system, and do it cheaply by
-  just nesting (or removing) a metrics map to the overall report.
+  just nesting (or removing) a metrics map in the overall report.
 
 This can be done transparently and after the fact, without major structural impact to the call site. It lets you far more easily decouple log generation from its consumption at no heavy cost.
 
-This formatter focuses on providing a text-based single-line format for structured logs, which can be amenable human consumers, along with people who use grep or awk to process log, or want to forward them to syslog.
+This formatter focuses on providing a text-based single-line format for structured logs, which can be human-readable, while being useful to people who use grep or awk to process logs, or want to forward them to a consumer like syslogd.
 
 Usage
 -----
