@@ -1,0 +1,19 @@
+%% This one failed due to bad line-breaking escaping
+{prop_flatlog,prop_map_keys,
+              [{#{level => emergency,
+                 meta =>
+                     #{line => 1,
+                       mfa => {'','\n',0},
+                       pid => "<0.7.0>",test_meta => true,time => 0},
+                 msg => {report,#{}}},
+               #{}}]}.
+
+%% This one failed due to improper escaping detection of backslashes
+{prop_flatlog,prop_nested_map_keys,
+              [{#{level => emergency,
+                 meta =>
+                     #{line => 1,
+                       mfa => {'','',0},
+                       pid => "<0.32.0>",test_meta => true,time => 0},
+                 msg => {report,#{"0" => ' \\'}}},
+                #{}}]}.
