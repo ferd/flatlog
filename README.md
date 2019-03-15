@@ -92,6 +92,10 @@ when=2018-11-15T18:16:03.411822+00:00 level=info pid=<0.134.0>
 at=some:code/0:15 unstructured_log="hello world"
 ```
 
+Do note that if you are building a release, you will need to manually add
+the `flatlog` dependency to your `relx` configuration, since it is
+technically not a direct dependency of any application in your system.
+
 Test
 ----
 
