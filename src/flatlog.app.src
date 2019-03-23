@@ -10,7 +10,6 @@
   {env,[]},
   {modules, []},
 
-  {maintainers, ["Fred Hebert"]},
   {licenses, ["Apache 2.0"]},
   {links, [{"Github", "https://github.com/ferd/flatlog/"}]}
  ]}.
