@@ -112,6 +112,9 @@ Features
   `"key=name"="hello world"` to be clear.
 - Term depth applies on a per-term basis before a data structure is elided with `...`
 - Map depth is controllable independently to deal with recursion vs. complexity of terms
+- Colored output can be enabled with `colored => true`. One can color certain parts of
+  the output using `colored_start` and `colored_end` in `template`. Per-level colors
+  can be configured with `colored_{log level}`.
 
 Caveats
 -------

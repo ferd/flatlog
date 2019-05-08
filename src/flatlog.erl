@@ -25,7 +25,10 @@
       Config :: logger:formatter_config().
 format(#{level:=Level, msg:={report, Msg}, meta:=Meta}, UsrConfig) when is_map(Msg) ->
     Config = apply_defaults(UsrConfig),
-    NewMeta = maps:put(level, Level, Meta),
+    NewMeta = maps:merge(Meta, #{level => Level
+                                ,colored_start => Level
+                                ,colored_end => "\e[0m"
+                                }),
     format_log(maps:get(template, Config), Config, Msg, NewMeta);
 format(Map = #{msg := {report, KeyVal}}, UsrConfig) when is_list(KeyVal) ->
     format(Map#{msg := {report, maps:from_list(KeyVal)}}, UsrConfig);
@@ -48,13 +51,23 @@ apply_defaults(Map) ->
         map_depth => -1,
         time_offset => 0,
         time_designator => $T,
-        template => ["when=", time, " level=", level,
+        colored => false,
+        colored_debug =>     "\e[0;38m",
+        colored_info =>      "\e[1;37m",
+        colored_notice =>    "\e[1;36m",
+        colored_warning =>   "\e[1;33m",
+        colored_error =>     "\e[1;31m",
+        colored_critical =>  "\e[1;35m",
+        colored_alert =>     "\e[1;44m",
+        colored_emergency => "\e[1;41m",
+        template => [colored_start, "when=", time, " level=", level,
                      {id, [" id=", id], ""}, {parent_id, [" parent_id=", parent_id], ""},
                      {correlation_id, [" correlation_id=", correlation_id], ""},
-                     {pid, [" pid=", pid], ""}, " at=", mfa, ":", line, " ", msg, "\n"]
+                     {pid, [" pid=", pid], ""}, " at=", mfa, ":", line, colored_end, " ", msg, "\n"]
        },
       Map
     ).
+
 
 -spec format_log(template(), Config, Msg, Meta) -> unicode:chardata() when
       Config :: logger:formatter_config(),
@@ -109,9 +122,19 @@ format_val(time, Time, Config) ->
     format_time(Time, Config);
 format_val(mfa, MFA, Config) ->
     escape(format_mfa(MFA, Config));
+format_val(colored_end, _EOC, #{colored := false}) -> "";
+format_val(colored_end, EOC,  #{colored := true}) -> EOC;
+format_val(colored_start, _Level,    #{colored := false}) -> "";
+format_val(colored_start, debug,     #{colored := true, colored_debug     := BOC}) -> BOC;
+format_val(colored_start, info,      #{colored := true, colored_info      := BOC}) -> BOC;
+format_val(colored_start, notice,    #{colored := true, colored_notice    := BOC}) -> BOC;
+format_val(colored_start, warning,   #{colored := true, colored_warning   := BOC}) -> BOC;
+format_val(colored_start, error,     #{colored := true, colored_error     := BOC}) -> BOC;
+format_val(colored_start, critical,  #{colored := true, colored_critical  := BOC}) -> BOC;
+format_val(colored_start, alert,     #{colored := true, colored_alert     := BOC}) -> BOC;
+format_val(colored_start, emergency, #{colored := true, colored_emergency := BOC}) -> BOC;
 format_val(_Key, Val, Config) ->
     to_string(Val, Config).
-
 
 
 format_time(N, #{time_offset := O, time_designator := D}) when is_integer(N) ->
@@ -192,4 +215,3 @@ do_escape(Str) ->
 truncate_key([]) -> [];
 truncate_key("_") -> "";
 truncate_key([H|T]) -> [H | truncate_key(T)].
-
