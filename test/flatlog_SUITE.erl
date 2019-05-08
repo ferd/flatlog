@@ -4,7 +4,7 @@
 -include_lib("stdlib/include/assert.hrl").
 
 all() ->
-    [term_depth, map_depth, unstructured].
+    [term_depth, map_depth, unstructured, colored].
 
 term_depth() ->
     [{docs, "Once a term is too deep, it gets continued with `...'"}].
@@ -67,6 +67,25 @@ unstructured(_) ->
        lists:flatten(
          flatlog:format(#{level => info, msg => {"hello ~s", ["world"]}, meta => #{}},
                         #{template => [msg]})
+       )
+    ),
+    ok.
+
+colored() ->
+    [{docs, "colored output logs"}].
+colored(_) ->
+    ?assertEqual(
+       "\e[1;37mwhen= level=info at=:\e[0m hi=there \n",
+        lists:flatten(
+          flatlog:format(#{level => info, msg => {report, #{hi => there}}, meta => #{}},
+                         #{colored => true})
+        )
+    ),
+    ?assertEqual(
+       "\e[1;44mwhen= level=alert at=:\e[0m unstructured_log=abc \n",
+       lists:flatten(
+         flatlog:format(#{level => alert, msg => {string, "abc"}, meta => #{}},
+                        #{colored => true})
        )
     ),
     ok.
