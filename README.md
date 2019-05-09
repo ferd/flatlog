@@ -139,3 +139,9 @@ Roadmap
 - add example basic usage
 - add example usage with optional tracing for IDs
 - clean up test suites
+- incorporating lager's safer truncating logic (might be a breaking change prior to 1.0.0)
+
+Changelog
+---------
+
+- 0.1.1: added optionally colored logs (thanks @pfenoll)
