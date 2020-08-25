@@ -23,6 +23,11 @@
 -spec format(LogEvent, Config) -> unicode:chardata() when
       LogEvent :: logger:log_event(),
       Config :: logger:formatter_config().
+format(Map = #{msg := {report, #{label := {error_logger, _}, format := Format, args := Terms}}}, UsrConfig) ->
+    format(Map#{msg := {report,
+                        #{unstructured_log =>
+                              unicode:characters_to_binary(io_lib:format(Format, Terms))}}},
+           UsrConfig);
 format(#{level:=Level, msg:={report, Msg}, meta:=Meta}, UsrConfig) when is_map(Msg) ->
     Config = apply_defaults(UsrConfig),
     NewMeta = maps:merge(Meta, #{level => Level
