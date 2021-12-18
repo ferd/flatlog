@@ -372,21 +372,34 @@ printable(Props) ->
         latin1 ->
             ?SUCHTHAT(S, list(range(0,255)), io_lib:printable_list(S));
         unicode ->
-            ?LET(S, utf8(), unicode:characters_to_list(S))
+            ?SUCHTHAT(US, ?LET(S, utf8(), unicode:characters_to_list(S)),
+                      io_lib:printable_unicode_list(US))
     end,
     String = case {Escape, Quote} of
         {true, _} ->
             ?SUCHTHAT(S,
                       ?LET(S, non_empty(list(oneof([Printable, "\"", "\n", "\r\n", "\\"]))),
                            lists:flatten(S)),
-                      re:run(S, "[\"\n\r\n\\\\]", [unicode]) =/= nomatch);
+                      %% Fun cases like "̀ are technically considered escapable
+                      %% by Erlang's own output system but not a proper unicode
+                      %% handling, and regex checks don't cope with that well.
+                      %re:run(S, "[\"\n\r\n\\\\]", [unicode]) =/= nomatch);
+                      length(string:split(S, "\"", all)) > 1 orelse
+                      length(string:split(S, "\n", all)) > 1 orelse
+                      length(string:split(S, "\r\n", all)) > 1 orelse
+                      length(string:split(S, "\\", all)) > 1);
         {false, true} ->
             ?SUCHTHAT(
               Str,
               ?LET(S, non_empty(list(oneof([" ", "=", Printable]))),
                  [Char || Char <- lists:flatten(S),
                           not lists:member(Char, [$", $\n, $\r, $\\])]),
-              re:run(Str, "[ =]", [unicode]) =/= nomatch
+              %% combining marks ([32,768]) contain a space that requires no escaping.
+              %% the re functions, even with unicode awareness, do not
+              %% understand that pattern.
+              %re:run(Str, "[ =]", [unicode]) =/= nomatch
+              length(string:split(Str, " ", all)) > 1 orelse
+              length(string:split(Str, "=", all)) > 1
             );
         {false, false} ->
             ?LET(S, Printable,

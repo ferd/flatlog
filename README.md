@@ -144,4 +144,5 @@ Roadmap
 Changelog
 ---------
 
+- 0.1.2: added a check for old `error_logger` calls (thanks @hommeabeil)
 - 0.1.1: added optionally colored logs (thanks @pfenoll)
